@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" role="img" aria-label="Pizza de champiñones y trufa">
+  <rect width="600" height="450" fill="#FDF6EC"/>
+  <ellipse cx="300" cy="410" rx="160" ry="16" fill="#E7E5E4"/>
+  <circle cx="300" cy="220" r="175" fill="#D97706"/>
+  <circle cx="300" cy="220" r="155" fill="#FBBF24"/>
+  <circle cx="300" cy="220" r="138" fill="#FDE68A"/>
+  <circle cx="300" cy="220" r="130" fill="#FEF3C7"/>
+  <g fill="#78350F">
+    <ellipse cx="245" cy="180" rx="26" ry="16"/>
+    <ellipse cx="345" cy="195" rx="28" ry="17"/>
+    <ellipse cx="275" cy="270" rx="24" ry="15"/>
+    <ellipse cx="360" cy="285" rx="22" ry="14"/>
+    <ellipse cx="315" cy="140" rx="20" ry="12"/>
+  </g>
+  <g fill="#D6D3D1">
+    <rect x="238" y="190" width="14" height="16" rx="5"/>
+    <rect x="338" y="206" width="14" height="16" rx="5"/>
+    <rect x="268" y="280" width="13" height="15" rx="5"/>
+    <rect x="353" y="294" width="12" height="14" rx="5"/>
+  </g>
+  <g fill="#44403C">
+    <circle cx="225" cy="230" r="4"/>
+    <circle cx="300" cy="220" r="3"/>
+    <circle cx="390" cy="240" r="4"/>
+    <circle cx="330" cy="320" r="3"/>
+    <circle cx="255" cy="320" r="3"/>
+  </g>
+</svg>
