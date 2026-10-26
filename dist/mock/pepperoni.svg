@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" role="img" aria-label="Pizza de pepperoni">
+  <rect width="600" height="450" fill="#FDF6EC"/>
+  <ellipse cx="300" cy="410" rx="160" ry="16" fill="#E7E5E4"/>
+  <circle cx="300" cy="220" r="175" fill="#D97706"/>
+  <circle cx="300" cy="220" r="155" fill="#FBBF24"/>
+  <circle cx="300" cy="220" r="138" fill="#DC2626"/>
+  <circle cx="300" cy="220" r="130" fill="#FDE68A"/>
+  <circle cx="240" cy="175" r="20" fill="#B91C1C" stroke="#991B1B" stroke-width="4"/>
+  <circle cx="320" cy="150" r="18" fill="#B91C1C" stroke="#991B1B" stroke-width="4"/>
+  <circle cx="370" cy="215" r="21" fill="#B91C1C" stroke="#991B1B" stroke-width="4"/>
+  <circle cx="285" cy="250" r="19" fill="#B91C1C" stroke="#991B1B" stroke-width="4"/>
+  <circle cx="345" cy="295" r="20" fill="#B91C1C" stroke="#991B1B" stroke-width="4"/>
+  <circle cx="235" cy="290" r="17" fill="#B91C1C" stroke="#991B1B" stroke-width="4"/>
+  <circle cx="300" cy="215" r="15" fill="#B91C1C" stroke="#991B1B" stroke-width="4"/>
+  <ellipse cx="390" cy="330" rx="14" ry="7" fill="#15803D" transform="rotate(-20 390 330)"/>
+  <ellipse cx="205" cy="215" rx="13" ry="7" fill="#16A34A" transform="rotate(30 205 215)"/>
+</svg>

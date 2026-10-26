@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 450" role="img" aria-label="Pizza de cuatro quesos">
+  <rect width="600" height="450" fill="#FDF6EC"/>
+  <ellipse cx="300" cy="410" rx="160" ry="16" fill="#E7E5E4"/>
+  <circle cx="300" cy="220" r="175" fill="#D97706"/>
+  <circle cx="300" cy="220" r="155" fill="#FBBF24"/>
+  <circle cx="300" cy="220" r="138" fill="#FDE68A"/>
+  <circle cx="300" cy="220" r="130" fill="#FEF9C3"/>
+  <circle cx="250" cy="175" r="30" fill="#FFFDF5"/>
+  <circle cx="350" cy="190" r="34" fill="#FFFBEB"/>
+  <circle cx="265" cy="270" r="32" fill="#FFFDF5"/>
+  <circle cx="355" cy="280" r="29" fill="#FFFBEB"/>
+  <circle cx="300" cy="150" r="22" fill="#FDE68A"/>
+  <circle cx="305" cy="230" r="18" fill="#A3A3A3"/>
+  <circle cx="225" cy="235" r="12" fill="#6B7280"/>
+  <circle cx="390" cy="235" r="13" fill="#6B7280"/>
+  <circle cx="315" cy="330" r="11" fill="#A3A3A3"/>
+  <circle cx="200" cy="190" r="10" fill="#6B7280"/>
+</svg>
