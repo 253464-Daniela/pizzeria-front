@@ -410,8 +410,7 @@ export default function CartPage() {
               </button>
 
               <p className="mt-3 text-center text-[10px] font-medium text-stone-400">
-                Al confirmar, aceptas los términos de servicio y la política de entrega de Forno
-                &amp; Dough.
+                Al confirmar, aceptas los términos de servicio y la política de entrega de La Rodaja Voladora.
               </p>
             </div>
           </aside>

@@ -313,7 +313,7 @@ export default function KitchenPage() {
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-base font-extrabold tracking-tight text-white lg:text-lg">
-                  Forno &amp; Dough
+                  La Rodaja Voladora
                 </h1>
                 <span className="rounded-md border border-red-800/60 bg-red-950/80 px-2 py-0.5 text-[10px] font-black uppercase tracking-wider text-red-400">
                   KDS · Cocina

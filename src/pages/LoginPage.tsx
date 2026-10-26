@@ -296,7 +296,7 @@ export default function LoginPage() {
           </span>
           <span>
             <span className="block text-base font-extrabold leading-none tracking-tight text-stone-900">
-              Forno &amp; Dough
+              La Rodaja Voladora
             </span>
             <span className="mt-1 block text-[11px] font-bold uppercase tracking-wider text-amber-700">
               Sistema de personal
@@ -501,7 +501,7 @@ export default function LoginPage() {
 
       <footer className="z-10 mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-2 border-t border-stone-200/50 px-4 py-4 text-xs font-semibold text-stone-400 sm:flex-row sm:px-8">
         <div>
-          <span>© 2026 Forno &amp; Dough Pizzeria</span>
+          <span>© 2026 La Rodaja Voladora Pizzeria</span>
           <span className="mx-2">•</span>
           <span>OS v4.12.0</span>
         </div>

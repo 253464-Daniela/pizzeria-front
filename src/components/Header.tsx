@@ -17,11 +17,11 @@ export function Header() {
       <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center gap-4 px-4 py-4 sm:px-8">
         <Link to="/" className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-red text-xl font-black text-white shadow-lg shadow-brand-red/30">
-            F
+            LRV
           </span>
           <span>
             <span className="block text-base font-extrabold leading-none tracking-tight text-stone-900">
-              Forno &amp; Dough
+              La Rodaja Voladora
             </span>
             <span className="mt-1 block text-[11px] font-bold uppercase tracking-wider text-brand-gold">
               Menú del cliente

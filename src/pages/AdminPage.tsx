@@ -223,12 +223,12 @@ export default function AdminPage() {
         <div className="mx-auto flex w-full max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-3 lg:px-6">
           <div className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-red text-lg font-black text-white shadow-md shadow-brand-red/20">
-              F
+              LRV
             </span>
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-base font-extrabold tracking-tight text-stone-900">
-                  Forno &amp; Dough
+                  La Rodaja Voladora
                 </span>
                 <span className="rounded-full bg-stone-900 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wider text-amber-400">
                   Admin Console
