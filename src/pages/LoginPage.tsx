@@ -7,17 +7,6 @@ interface IconoProps {
   className?: string
 }
 
-const ESTACIONES: {
-  rol: Rol
-  etiqueta: string
-  panel: string
-  Icono: ComponentType<IconoProps>
-}[] = [
-  { rol: 'cocinero', etiqueta: 'Cocina', panel: 'Cocina', Icono: FireIcon },
-  { rol: 'recepcionista', etiqueta: 'Recepción', panel: 'Recepción', Icono: ScooterIcon },
-  { rol: 'administrador', etiqueta: 'Admin', panel: 'Administrador', Icono: ShieldIcon },
-]
-
 const PRESETS: {
   etiqueta: string
   usuario: string
@@ -27,22 +16,22 @@ const PRESETS: {
 }[] = [
   {
     etiqueta: 'Chef principal',
-    usuario: 'chef_marco',
-    password: 'oven900f',
+    usuario: 'cocina',
+    password: 'cocina123',
     rol: 'cocinero',
     Icono: FireIcon,
   },
   {
     etiqueta: 'Recepción',
-    usuario: 'dispatch_sam',
-    password: 'vespa2026',
+    usuario: 'recepcion',
+    password: 'recepcion123',
     rol: 'recepcionista',
     Icono: ScooterIcon,
   },
   {
     etiqueta: 'Administrador',
-    usuario: 'manager_luigi',
-    password: 'fornoAdmin!',
+    usuario: 'admin',
+    password: 'admin123',
     rol: 'administrador',
     Icono: ClipboardIcon,
   },
@@ -153,17 +142,6 @@ function EyeOffIcon({ className }: IconoProps) {
   )
 }
 
-function KeyIcon({ className }: IconoProps) {
-  return (
-    <Icono className={className}>
-      <circle cx="8" cy="15" r="4" />
-      <path d="m11 12 9-9" />
-      <path d="m17 3 3 3" />
-      <path d="m14 6 3 3" />
-    </Icono>
-  )
-}
-
 function LoginIcon({ className }: IconoProps) {
   return (
     <Icono className={className}>
@@ -219,7 +197,6 @@ export default function LoginPage() {
   const [usuarioInput, setUsuarioInput] = useState('')
   const [password, setPassword] = useState('')
   const [mostrarPassword, setMostrarPassword] = useState(false)
-  const [estacion, setEstacion] = useState<Rol>('cocinero')
   const [cargando, setCargando] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [aviso, setAviso] = useState<string | null>(null)
@@ -235,10 +212,7 @@ export default function LoginPage() {
     return <Navigate to={RUTA_POR_ROL[usuario.rol]} replace />
   }
 
-  const panelActivo = ESTACIONES.find((opcion) => opcion.rol === estacion)?.panel ?? 'Cocina'
-
   function aplicarPreset(preset: (typeof PRESETS)[number]) {
-    setEstacion(preset.rol)
     setUsuarioInput(preset.usuario)
     setPassword(preset.password)
     setError(null)
@@ -293,10 +267,6 @@ export default function LoginPage() {
         </Link>
 
         <div className="flex items-center gap-3">
-          <div className="hidden items-center gap-2 rounded-full border border-stone-200/80 bg-white/80 px-3.5 py-1.5 text-xs font-semibold text-stone-600 shadow-sm sm:flex">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500 motion-reduce:animate-none" />
-            POS Nodo #04 · Cocina
-          </div>
           <Link
             to="/"
             className="flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold text-stone-500 transition hover:bg-white/60 hover:text-brand-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red motion-reduce:transition-none"
@@ -319,33 +289,6 @@ export default function LoginPage() {
             <p className="mt-1 text-xs font-semibold text-stone-500">
               Autentícate para acceder a cocina, recepción y administración.
             </p>
-          </div>
-
-          <div
-            role="group"
-            aria-label="Estación de trabajo"
-            className="mb-6 flex items-center justify-between gap-1 rounded-2xl border border-stone-200/60 bg-stone-100 p-1 text-xs font-bold"
-          >
-            {ESTACIONES.map((opcion) => {
-              const activo = opcion.rol === estacion
-
-              return (
-                <button
-                  key={opcion.rol}
-                  type="button"
-                  onClick={() => setEstacion(opcion.rol)}
-                  aria-pressed={activo}
-                  className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red motion-reduce:transition-none ${
-                    activo
-                      ? 'bg-white font-extrabold text-brand-red shadow-sm'
-                      : 'text-stone-500 hover:text-stone-900'
-                  }`}
-                >
-                  <opcion.Icono className="h-3.5 w-3.5" />
-                  {opcion.etiqueta}
-                </button>
-              )
-            })}
           </div>
 
           <form onSubmit={manejarEnvio} noValidate className="space-y-4">
@@ -381,22 +324,12 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <div className="mb-1.5 flex items-center justify-between">
-                <label
-                  htmlFor="staff-password"
-                  className="block text-xs font-bold uppercase tracking-wider text-stone-700"
-                >
-                  Contraseña
-                </label>
-                <button
-                  type="button"
-                  onClick={() => setAviso('Solicita el restablecimiento al gerente de turno.')}
-                  className="inline-flex items-center gap-1 text-[11px] font-extrabold text-stone-400 transition hover:text-brand-red focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red motion-reduce:transition-none"
-                >
-                  <KeyIcon className="h-3 w-3" />
-                  ¿La olvidaste?
-                </button>
-              </div>
+              <label
+                htmlFor="staff-password"
+                className="mb-1.5 block text-xs font-bold uppercase tracking-wider text-stone-700"
+              >
+                Contraseña
+              </label>
               <div className="relative">
                 <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-stone-400">
                   <LockIcon className="h-4 w-4" />
@@ -431,10 +364,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between px-1">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400">
-                Acceso: {panelActivo}
-              </span>
+            <div className="flex items-center justify-end px-1">
               <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-stone-400">
                 <ShieldIcon className="h-3 w-3" />
                 Sesión cifrada
@@ -462,7 +392,7 @@ export default function LoginPage() {
               ) : (
                 <LoginIcon className="h-4 w-4" />
               )}
-              {cargando ? 'Verificando...' : `Ingresar a ${panelActivo}`}
+              {cargando ? 'Verificando...' : 'Ingresar'}
             </button>
           </form>
 

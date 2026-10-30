@@ -63,7 +63,7 @@ export default function StatsSection({ estadisticas }: Props) {
         </div>
         <div className="mt-4 border-t border-stone-100 pt-3">
           <span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[11px] font-extrabold text-blue-700">
-            {estadisticas.num_pedidos === 1 ? '1 orden en curso' : `${estadisticas.num_pedidos} órdenes en curso`}
+            Incluye pedidos entregados
           </span>
         </div>
       </article>

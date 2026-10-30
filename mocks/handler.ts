@@ -278,22 +278,22 @@ const usuariosStaff: UsuarioStaffMock[] = [
     id: 1,
     nombre: 'Marco Rossi',
     rol: 'cocinero',
-    usuario: 'chef_marco',
-    password: 'oven900f',
+    usuario: 'cocinero',
+    password: 'cocinero123',
   },
   {
     id: 2,
     nombre: 'Sam Rivera',
     rol: 'recepcionista',
-    usuario: 'dispatch_sam',
-    password: 'vespa2026',
+    usuario: 'recepcionista',
+    password: 'recepcionista123',
   },
   {
     id: 3,
     nombre: 'Luigi Bianchi',
     rol: 'administrador',
-    usuario: 'manager_luigi',
-    password: 'fornoAdmin!',
+    usuario: 'admin',
+    password: 'admin123',
   },
 ]
 

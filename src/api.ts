@@ -270,12 +270,19 @@ export async function crearPedido(payload: PedidoIn): Promise<PedidoCreado> {
 }
 
 export async function getPedidos(
-  filtros: { fecha: string; estado: string },
+  filtros: { fecha?: string; estado?: string },
   token: string | null,
   signal?: AbortSignal,
 ): Promise<PedidoListado[]> {
-  const query = new URLSearchParams(filtros).toString()
-  const data = await request<PedidosOut>(`/pedidos?${query}`, { token, signal })
+  const query = new URLSearchParams()
+  if (filtros.fecha) query.set('fecha', filtros.fecha)
+  if (filtros.estado) query.set('estado', filtros.estado)
+  const sufijo = query.toString()
+
+  const data = await request<PedidosOut>(`/pedidos${sufijo ? `?${sufijo}` : ''}`, {
+    token,
+    signal,
+  })
   return data.pedidos
 }
 

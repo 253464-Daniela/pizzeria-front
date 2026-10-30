@@ -10,6 +10,7 @@ import {
   type CambioHistorial,
 } from '../api'
 import HistorySection from '../components/admin/HistorySection'
+import OrdersSection from '../components/admin/OrdersSection'
 import PriceManager from '../components/admin/PriceManager'
 import StatsSection from '../components/admin/StatsSection'
 import type {
@@ -203,7 +204,7 @@ export default function AdminPage() {
     const url = URL.createObjectURL(blob)
     const enlace = document.createElement('a')
     enlace.href = url
-    enlace.download = `forno-precios-${fechaDeHoy()}.csv`
+    enlace.download = `rodaja-precios-${fechaDeHoy()}.csv`
     enlace.click()
     URL.revokeObjectURL(url)
     setAviso('Matriz de precios exportada a CSV.')
@@ -235,7 +236,7 @@ export default function AdminPage() {
                 </span>
               </div>
               <span className="mt-0.5 block text-xs font-semibold text-stone-500">
-                Tienda #102 · Menú y precios
+                Menú y precios
               </span>
             </div>
           </div>
@@ -365,6 +366,7 @@ export default function AdminPage() {
         ) : error ? null : (
           <>
             <StatsSection estadisticas={estadisticas ?? ESTADISTICAS_VACIAS} />
+            <OrdersSection token={token} />
             <PriceManager
               productos={productos}
               ingredientes={ingredientes}
