@@ -1,12 +1,12 @@
-import { useEffect, useState, type ComponentType, type FormEvent, type ReactNode } from 'react'
+import { useEffect, useState,  type FormEvent, type ReactNode } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
 import { ApiError, login as loginRequest } from '../api'
-import { RUTA_POR_ROL, useAuth, type Rol } from '../context/AuthContext'
+import { RUTA_POR_ROL, useAuth } from '../context/AuthContext'
 
 interface IconoProps {
   className?: string
 }
-
+/* 
 const PRESETS: {
   etiqueta: string
   usuario: string
@@ -35,7 +35,7 @@ const PRESETS: {
     rol: 'administrador',
     Icono: ClipboardIcon,
   },
-]
+] */
 
 function Icono({ className = 'h-4 w-4', children }: IconoProps & { children: ReactNode }) {
   return (
@@ -64,7 +64,7 @@ function UtensilsIcon({ className }: IconoProps) {
     </Icono>
   )
 }
-
+/* 
 function FireIcon({ className }: IconoProps) {
   return (
     <Icono className={className}>
@@ -83,7 +83,7 @@ function ScooterIcon({ className }: IconoProps) {
       <path d="M11 9.5H7L5.5 17.5" />
     </Icono>
   )
-}
+} */
 
 function ShieldIcon({ className }: IconoProps) {
   return (
@@ -94,7 +94,7 @@ function ShieldIcon({ className }: IconoProps) {
   )
 }
 
-function ClipboardIcon({ className }: IconoProps) {
+/* function ClipboardIcon({ className }: IconoProps) {
   return (
     <Icono className={className}>
       <rect x="5" y="4" width="14" height="17" rx="2" />
@@ -103,7 +103,7 @@ function ClipboardIcon({ className }: IconoProps) {
       <path d="M9 15h4" />
     </Icono>
   )
-}
+} */
 
 function UserIcon({ className }: IconoProps) {
   return (
