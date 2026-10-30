@@ -169,6 +169,8 @@ function estiloUrgencia(minutos: number): EstiloUrgencia {
 type ResultadoCola = { ok: true; cola: ItemCocina[] } | { ok: false; mensaje: string | null }
 
 function mapearItem(item: ItemCola): ItemCocina {
+  const idsAgregados = new Set(item.agregados.map((ingrediente) => ingrediente.id))
+
   return {
     item_id: item.item_id,
     pedido_id: item.pedido_id,
@@ -176,7 +178,7 @@ function mapearItem(item: ItemCola): ItemCocina {
     pizza: item.pizza,
     fecha_creacion: item.fecha_creacion,
     ingredientes: [
-      ...item.ingredientes,
+      ...item.ingredientes.filter((ingrediente) => !idsAgregados.has(ingrediente.id)),
       ...item.quitados.map((ingrediente) => ({ ...ingrediente, accion: 'quitado' as const })),
       ...item.agregados.map((ingrediente) => ({ ...ingrediente, accion: 'agregado' as const })),
     ],

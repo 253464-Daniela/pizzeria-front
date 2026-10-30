@@ -1,16 +1,20 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
+import { OrderLookupModal } from './OrderLookupModal'
 
-const NAV = [
-  { label: 'Menú', href: '#', current: true },
-  { label: 'Promociones', href: '#' },
-  { label: 'Pedidos', href: '#' },
-  { label: 'Ubicación', href: '#' },
+const NAV: { label: string; to?: string; accion?: 'pedidos' }[] = [
+  { label: 'Menú', to: '/' },
+  { label: 'Pedidos', accion: 'pedidos' },
 ]
 
 export function Header() {
   const { items } = useCart()
+  const { pathname } = useLocation()
+  const [consultaAbierta, setConsultaAbierta] = useState(false)
   const unidades = items.reduce((suma, item) => suma + item.cantidad, 0)
+  const enPedidos = pathname.startsWith('/pedido')
+  const enMenu = pathname === '/' || pathname.startsWith('/producto')
 
   return (
     <header className="sticky top-0 z-30 border-b border-stone-200/70 bg-white/85 backdrop-blur">
@@ -31,19 +35,39 @@ export function Header() {
 
         <nav className="order-3 -mx-1 w-full overflow-x-auto md:order-none md:mx-0 md:ml-8 md:w-auto">
           <ul className="flex items-center gap-1 text-sm font-bold">
-            {NAV.map((item) => (
-              <li key={item.label}>
-                <a
-                  href={item.href}
-                  aria-current={item.current ? 'page' : undefined}
-                  className={`block whitespace-nowrap rounded-xl px-3 py-2 transition hover:bg-brand-red/5 hover:text-brand-red-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red ${
-                    item.current ? 'bg-brand-red/10 text-brand-red-dark' : 'text-stone-500'
-                  }`}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
+            {NAV.map((item) => {
+              const activo = item.accion === 'pedidos' ? enPedidos : enMenu
+              const clases = `block whitespace-nowrap rounded-xl px-3 py-2 transition hover:bg-brand-red/5 hover:text-brand-red-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red ${
+                activo ? 'bg-brand-red/10 text-brand-red-dark' : 'text-stone-500'
+              }`
+
+              if (item.accion === 'pedidos') {
+                return (
+                  <li key={item.label}>
+                    <button
+                      type="button"
+                      onClick={() => setConsultaAbierta(true)}
+                      aria-current={activo ? 'page' : undefined}
+                      className={clases}
+                    >
+                      {item.label}
+                    </button>
+                  </li>
+                )
+              }
+
+              return (
+                <li key={item.label}>
+                  <Link
+                    to={item.to ?? '/'}
+                    aria-current={activo ? 'page' : undefined}
+                    className={clases}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
         </nav>
 
@@ -80,6 +104,10 @@ export function Header() {
           </Link>
         </div>
       </div>
+
+      {consultaAbierta && (
+        <OrderLookupModal onClose={() => setConsultaAbierta(false)} />
+      )}
     </header>
   )
 }
