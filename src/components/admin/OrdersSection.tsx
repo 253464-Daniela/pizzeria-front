@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ApiError, getPedidos, type EstadoPedido, type PedidoListado } from '../../api'
 import { IconoActualizar, IconoAlerta, IconoPedidos } from './icons'
+import SalesCharts from './SalesCharts'
 
 interface Props {
   token: string | null
@@ -311,6 +312,8 @@ export default function OrdersSection({ token }: Props) {
           </button>
         </div>
       )}
+
+      {!cargando && !error && <SalesCharts pedidos={pedidos} />}
 
       <div className="mt-4 flex items-center justify-between gap-2">
         <h3 className="text-xs font-extrabold text-stone-900">
