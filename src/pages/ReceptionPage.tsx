@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { ApiError, entregarPedido, getPedidos } from '../api'
 import { useAuth } from '../context/AuthContext'
 
 interface ItemPedido {
@@ -9,10 +10,10 @@ interface ItemPedido {
 interface PedidoRecepcion {
   id: number
   nombre_cliente: string
-  estado: 'listo' | 'entregado'
+  estado: 'pendiente' | 'listo' | 'entregado'
   total: number
   fecha_creacion: string
-  fecha_listo: string
+  fecha_listo: string | null
   fecha_entrega: string | null
   items: ItemPedido[]
 }
@@ -77,24 +78,15 @@ async function solicitarPedidos(
   }
 
   try {
-    const parametros = new URLSearchParams({ fecha, estado })
-    const respuesta = await fetch(`/api/pedidos?${parametros.toString()}`, {
-      headers: { Authorization: `Bearer ${token ?? ''}` },
-      signal,
-      cache: 'no-store',
-    })
-
-    if (respuesta.status === 401) {
-      return { ok: false, mensaje: 'Tu sesión expiró. Vuelve a iniciar sesión.' }
-    }
-
-    if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`)
-
-    const data = (await respuesta.json()) as PedidoRecepcion[]
-    return { ok: true, pedidos: data }
+    const pedidos = await getPedidos({ fecha, estado }, token, signal)
+    return { ok: true, pedidos }
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') {
       return { ok: false, mensaje: null }
+    }
+
+    if (err instanceof ApiError && err.status === 401) {
+      return { ok: false, mensaje: 'Tu sesión expiró. Vuelve a iniciar sesión.' }
     }
 
     return {
@@ -363,28 +355,25 @@ export default function ReceptionPage() {
     setError(null)
 
     try {
-      const respuesta = await fetch(`/api/pedidos/${pedido.id}/entregar`, {
-        method: 'PATCH',
-        headers: { Authorization: `Bearer ${token ?? ''}` },
-      })
-
-      if (respuesta.status === 409) {
-        setError(
-          'Este pedido todavía no está listo para entregarse. La cocina pudo haber revertido su estado: actualiza la lista e inténtalo de nuevo.',
-        )
-        return
-      }
-
-      if (respuesta.status === 404) {
-        setError('El pedido ya no existe. Actualiza la lista para sincronizarte.')
-        return
-      }
-
-      if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`)
+      await entregarPedido(pedido.id, token)
 
       setAviso(`Pedido #${pedido.id} de ${pedido.nombre_cliente} entregado.`)
       await recargarPedidos()
-    } catch {
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 409) {
+          setError(
+            'Este pedido todavía no está listo para entregarse. La cocina pudo haber revertido su estado: actualiza la lista e inténtalo de nuevo.',
+          )
+          return
+        }
+
+        if (err.status === 404) {
+          setError('El pedido ya no existe. Actualiza la lista para sincronizarte.')
+          return
+        }
+      }
+
       setError('No pudimos marcar el pedido como entregado. Intenta de nuevo.')
     } finally {
       setProcesandoId(null)

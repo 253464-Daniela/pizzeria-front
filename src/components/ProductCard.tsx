@@ -11,11 +11,11 @@ export type TipoProducto = 'pizza' | 'bebida'
 export interface Producto {
   id: number
   nombre: string
-  descripcion: string
+  descripcion: string | null
   tipo: TipoProducto
   precio: number
   imagen_url: string | null
-  ingredientes_base: Ingrediente[]
+  ingredientes_base?: Ingrediente[]
 }
 
 interface ProductCardProps {
@@ -46,8 +46,9 @@ function PizzaPlaceholder() {
 
 export function ProductCard({ producto, onAgregar }: ProductCardProps) {
   const esPizza = producto.tipo === 'pizza'
-  const ingredientes = producto.ingredientes_base.slice(0, 3)
-  const restantes = producto.ingredientes_base.length - ingredientes.length
+  const ingredientesBase = producto.ingredientes_base ?? []
+  const ingredientes = ingredientesBase.slice(0, 3)
+  const restantes = ingredientesBase.length - ingredientes.length
   const [agregado, setAgregado] = useState(false)
   const detalleUrl = `/producto/${producto.id}`
 

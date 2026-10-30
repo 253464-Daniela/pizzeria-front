@@ -1,4 +1,14 @@
 import { useEffect, useState } from 'react'
+import {
+  actualizarPrecioIngrediente,
+  actualizarPrecioProducto,
+  ApiError,
+  getEstadisticas,
+  getHistorial,
+  getIngredientes,
+  getMenu,
+  type CambioHistorial,
+} from '../api'
 import HistorySection from '../components/admin/HistorySection'
 import PriceManager from '../components/admin/PriceManager'
 import StatsSection from '../components/admin/StatsSection'
@@ -22,16 +32,16 @@ const ESTADISTICAS_VACIAS: Estadisticas = {
   producto_mas_vendido: null,
 }
 
-async function obtenerJson<T>(url: string, token: string | null, signal?: AbortSignal): Promise<T> {
-  const respuesta = await fetch(url, {
-    headers: { Authorization: `Bearer ${token ?? ''}` },
-    signal,
-    cache: 'no-store',
-  })
-
-  if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`)
-
-  return (await respuesta.json()) as T
+function mapearHistorial(cambios: CambioHistorial[]): HistorialPrecio[] {
+  return cambios.map((cambio) => ({
+    id: cambio.id,
+    tipo: cambio.tipo,
+    id_referencia: cambio.referencia_id,
+    nombre: cambio.nombre ?? `#${cambio.referencia_id}`,
+    precio_anterior: cambio.precio_anterior,
+    precio_nuevo: cambio.precio_nuevo,
+    fecha_cambio: cambio.fecha,
+  }))
 }
 
 function fechaDeHoy() {
@@ -60,16 +70,20 @@ export default function AdminPage() {
     async function cargarPanel() {
       try {
         const [stats, hist, prods, ings] = await Promise.all([
-          obtenerJson<Estadisticas>('/api/admin/estadisticas', token, controller.signal),
-          obtenerJson<HistorialPrecio[]>('/api/admin/historial-precios', token, controller.signal),
-          obtenerJson<ProductoAdmin[]>('/api/menu', token, controller.signal),
-          obtenerJson<IngredienteAdmin[]>('/api/ingredientes', token, controller.signal),
+          getEstadisticas(undefined, token, controller.signal),
+          getHistorial(undefined, token, controller.signal),
+          getMenu(undefined, controller.signal),
+          getIngredientes(controller.signal),
         ])
 
         if (controller.signal.aborted) return
 
-        setEstadisticas(stats)
-        setHistorial(hist)
+        setEstadisticas({
+          num_pedidos: stats.ventas_dia.num_pedidos,
+          total_ventas: stats.ventas_dia.total_ventas,
+          producto_mas_vendido: stats.producto_mas_vendido,
+        })
+        setHistorial(mapearHistorial(hist))
         setProductos(prods)
         setIngredientes(ings)
         setError(null)
@@ -105,8 +119,8 @@ export default function AdminPage() {
 
   async function recargarHistorial() {
     try {
-      const datos = await obtenerJson<HistorialPrecio[]>('/api/admin/historial-precios', token)
-      setHistorial(datos)
+      const datos = await getHistorial(undefined, token)
+      setHistorial(mapearHistorial(datos))
     } catch {
       setErrorAccion('El precio se actualizó, pero no pudimos refrescar el historial.')
     }
@@ -117,19 +131,7 @@ export default function AdminPage() {
     setErrorAccion(null)
 
     try {
-      const respuesta = await fetch(`/api/admin/productos/${id}/precio`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token ?? ''}`,
-        },
-        body: JSON.stringify({ precio }),
-      })
-
-      if (respuesta.status === 401) return 'Tu sesión expiró. Vuelve a iniciar sesión.'
-      if (respuesta.status === 422) return 'El precio debe ser mayor a 0.'
-      if (respuesta.status === 404) return 'El producto ya no existe.'
-      if (!respuesta.ok) return 'No pudimos actualizar el precio. Intenta de nuevo.'
+      await actualizarPrecioProducto(id, precio, token)
 
       setProductos((previos) =>
         previos.map((producto) =>
@@ -139,8 +141,13 @@ export default function AdminPage() {
       setAviso(`Precio de ${nombre} actualizado a $${precio.toFixed(2)}.`)
       await recargarHistorial()
       return null
-    } catch {
-      return 'No pudimos actualizar el precio. Revisa tu conexión e intenta de nuevo.'
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 401) return 'Tu sesión expiró. Vuelve a iniciar sesión.'
+        if (err.status === 422) return 'El precio debe ser mayor a 0.'
+        if (err.status === 404) return 'El producto ya no existe.'
+      }
+      return 'No pudimos actualizar el precio. Intenta de nuevo.'
     }
   }
 
@@ -150,19 +157,7 @@ export default function AdminPage() {
     setErrorAccion(null)
 
     try {
-      const respuesta = await fetch(`/api/admin/ingredientes/${id}/precio`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token ?? ''}`,
-        },
-        body: JSON.stringify({ precio_extra: precioExtra }),
-      })
-
-      if (respuesta.status === 401) return 'Tu sesión expiró. Vuelve a iniciar sesión.'
-      if (respuesta.status === 422) return 'El precio extra debe ser mayor o igual a 0.'
-      if (respuesta.status === 404) return 'El ingrediente ya no existe.'
-      if (!respuesta.ok) return 'No pudimos actualizar el precio. Intenta de nuevo.'
+      await actualizarPrecioIngrediente(id, precioExtra, token)
 
       setIngredientes((previos) =>
         previos.map((ingrediente) =>
@@ -174,8 +169,13 @@ export default function AdminPage() {
       setAviso(`Precio extra de ${nombre} actualizado a $${precioExtra.toFixed(2)}.`)
       await recargarHistorial()
       return null
-    } catch {
-      return 'No pudimos actualizar el precio. Revisa tu conexión e intenta de nuevo.'
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 401) return 'Tu sesión expiró. Vuelve a iniciar sesión.'
+        if (err.status === 422) return 'El precio extra debe ser mayor o igual a 0.'
+        if (err.status === 404) return 'El ingrediente ya no existe.'
+      }
+      return 'No pudimos actualizar el precio. Intenta de nuevo.'
     }
   }
 

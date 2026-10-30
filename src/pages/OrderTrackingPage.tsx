@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { ApiError, getPedidoEstado } from '../api'
 import { Header } from '../components/Header'
 
 export interface ItemEstado {
@@ -278,27 +279,16 @@ export default function OrderTrackingPage() {
     if (!id) return
 
     const controller = new AbortController()
-    const pedidoId = id
+    const pedidoId = Number(id)
 
     async function consultar(indicador: Indicador) {
       if (indicador === 'skeleton') setCargando(true)
       if (indicador === 'boton') setActualizando(true)
 
       try {
-        const respuesta = await fetch(`/api/pedidos/${pedidoId}/estado`, {
-          signal: controller.signal,
-          cache: 'no-store',
-        })
+        if (!Number.isInteger(pedidoId)) throw new ApiError(404, 'not-found')
 
-        if (respuesta.status === 404) {
-          setPedido(null)
-          setError('PEDIDO_NO_ENCONTRADO')
-          return
-        }
-
-        if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`)
-
-        const data = (await respuesta.json()) as PedidoEstado
+        const data = await getPedidoEstado(pedidoId, controller.signal)
         if (controller.signal.aborted) return
 
         setPedido(data)
@@ -306,6 +296,11 @@ export default function OrderTrackingPage() {
         setUltimaActualizacion(new Date())
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') return
+        if (err instanceof ApiError && err.status === 404) {
+          setPedido(null)
+          setError('PEDIDO_NO_ENCONTRADO')
+          return
+        }
         setError((actual) => (actual === 'PEDIDO_NO_ENCONTRADO' ? actual : 'CONEXION'))
       } finally {
         if (!controller.signal.aborted) {

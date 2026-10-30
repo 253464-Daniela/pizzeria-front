@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import { ApiError, getIngredientes, getProducto } from '../api'
 import { Header } from '../components/Header'
 import { IngredientSelector } from '../components/IngredientSelector'
 import { useCart } from '../context/CartContext'
@@ -18,9 +19,10 @@ export interface IngredienteExtra {
 export interface ProductoDetalle {
   id: number
   nombre: string
-  descripcion: string
+  descripcion: string | null
   tipo: 'pizza' | 'bebida'
   precio: number
+  imagen_url?: string | null
   ingredientes_base: IngredienteBase[]
 }
 
@@ -104,24 +106,18 @@ export default function ProductDetailPage() {
     if (!id) return
 
     const controller = new AbortController()
+    const productoId = Number(id)
 
     async function cargarDetalle() {
       setCargando(true)
       setError(null)
 
       try {
-        const [respuestaProducto, respuestaExtras] = await Promise.all([
-          fetch(`/api/products/${id}`, { signal: controller.signal }),
-          fetch('/api/ingredientes', { signal: controller.signal }),
-        ])
+        if (!Number.isInteger(productoId)) throw new ApiError(404, 'not-found')
 
-        if (respuestaProducto.status === 404) throw new Error('not-found')
-        if (!respuestaProducto.ok) throw new Error(`Producto: ${respuestaProducto.status}`)
-        if (!respuestaExtras.ok) throw new Error(`Ingredientes: ${respuestaExtras.status}`)
-
-        const [detalle, extras]: [ProductoDetalle, IngredienteExtra[]] = await Promise.all([
-          respuestaProducto.json(),
-          respuestaExtras.json(),
+        const [detalle, extras] = await Promise.all([
+          getProducto(productoId, controller.signal),
+          getIngredientes(controller.signal),
         ])
 
         if (controller.signal.aborted) return
@@ -133,7 +129,7 @@ export default function ProductDetailPage() {
         setAgregar([])
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') return
-        if (err instanceof Error && err.message === 'not-found') {
+        if (err instanceof ApiError && (err.status === 404 || err.status === 422)) {
           setError('Ese producto no existe o ya no está disponible.')
         } else {
           setError('No pudimos cargar el producto. Intenta de nuevo.')

@@ -1,16 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { ApiError, crearPedido, getIngredientes, getProducto } from '../api'
 import { Header } from '../components/Header'
 import { useCart } from '../context/CartContext'
-
-interface IngredienteResumen {
-  id: number
-  nombre: string
-}
-
-interface ProductoResumen {
-  ingredientes_base: IngredienteResumen[]
-}
 
 const MAX_NOMBRE = 80
 
@@ -64,25 +56,25 @@ export default function CartPage() {
   const inputNombre = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    if (items.length === 0) return
+
     const controller = new AbortController()
+    const ids = [...new Set(items.map((item) => item.producto_id))]
 
     async function cargarNombres() {
       try {
-        const [respuestaProductos, respuestaExtras] = await Promise.all([
-          fetch('/api/productos', { signal: controller.signal }),
-          fetch('/api/ingredientes', { signal: controller.signal }),
+        const [detalles, extras] = await Promise.all([
+          Promise.all(
+            ids.map((id) => getProducto(id, controller.signal).catch(() => null)),
+          ),
+          getIngredientes(controller.signal),
         ])
-
-        if (!respuestaProductos.ok || !respuestaExtras.ok) return
-
-        const productos: ProductoResumen[] = await respuestaProductos.json()
-        const extras: IngredienteResumen[] = await respuestaExtras.json()
 
         if (controller.signal.aborted) return
 
         const base: Record<number, string> = {}
-        for (const producto of productos) {
-          for (const ingrediente of producto.ingredientes_base) {
+        for (const producto of detalles) {
+          for (const ingrediente of producto?.ingredientes_base ?? []) {
             base[ingrediente.id] = ingrediente.nombre
           }
         }
@@ -102,7 +94,7 @@ export default function CartPage() {
     cargarNombres()
 
     return () => controller.abort()
-  }, [])
+  }, [items])
 
   const unidades = items.reduce((suma, item) => suma + item.cantidad, 0)
 
@@ -123,44 +115,29 @@ export default function CartPage() {
     setError(null)
 
     try {
-      const respuesta = await fetch('/api/pedidos', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nombre_cliente: nombre,
-          items: items.map((item) => ({
-            producto_id: item.producto_id,
-            cantidad: item.cantidad,
-            ingredientes_quitar: item.ingredientes_quitar,
-            ingredientes_agregar: item.ingredientes_agregar,
-          })),
-        }),
+      const pedido = await crearPedido({
+        nombre_cliente: nombre,
+        items: items.map((item) => ({
+          producto_id: item.producto_id,
+          cantidad: item.cantidad,
+          ingredientes_quitar: item.ingredientes_quitar,
+          ingredientes_agregar: item.ingredientes_agregar,
+        })),
       })
 
-      const data: unknown = await respuesta.json().catch(() => null)
-
-      if (respuesta.status === 201) {
-        const pedido = data as { id?: number } | null
-
-        if (!pedido?.id) {
-          setError('El pedido se creó, pero no recibimos su identificador.')
-          return
+      localStorage.setItem('pedido_id', String(pedido.id))
+      clearCart()
+      navigate(`/pedido/${pedido.id}`)
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 422 || err.status === 400) {
+          setError(err.message || 'No pudimos validar el pedido.')
+        } else {
+          setError('No pudimos crear el pedido. Intenta de nuevo.')
         }
-
-        localStorage.setItem('pedido_id', String(pedido.id))
-        clearCart()
-        navigate(`/pedido/${pedido.id}`)
-        return
-      }
-
-      if (respuesta.status === 422 || respuesta.status === 400) {
-        const errorApi = data as { error?: { mensaje?: string } } | null
-        setError(errorApi?.error?.mensaje ?? 'No pudimos validar el pedido.')
       } else {
-        setError('No pudimos crear el pedido. Intenta de nuevo.')
+        setError('No pudimos conectar con el servidor. Revisa tu conexión e intenta de nuevo.')
       }
-    } catch {
-      setError('No pudimos conectar con el servidor. Revisa tu conexión e intenta de nuevo.')
     } finally {
       setEnviando(false)
     }

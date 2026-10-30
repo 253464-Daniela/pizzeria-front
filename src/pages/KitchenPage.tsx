@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react'
+import { ApiError, getColaCocina, marcarItemListo, type ItemCola } from '../api'
 import { useAuth } from '../context/AuthContext'
 
 export interface IngredienteCocina {
@@ -167,25 +168,32 @@ function estiloUrgencia(minutos: number): EstiloUrgencia {
 
 type ResultadoCola = { ok: true; cola: ItemCocina[] } | { ok: false; mensaje: string | null }
 
+function mapearItem(item: ItemCola): ItemCocina {
+  return {
+    item_id: item.item_id,
+    pedido_id: item.pedido_id,
+    nombre_cliente: item.nombre_cliente,
+    pizza: item.pizza,
+    fecha_creacion: item.fecha_creacion,
+    ingredientes: [
+      ...item.ingredientes,
+      ...item.quitados.map((ingrediente) => ({ ...ingrediente, accion: 'quitado' as const })),
+      ...item.agregados.map((ingrediente) => ({ ...ingrediente, accion: 'agregado' as const })),
+    ],
+  }
+}
+
 async function solicitarCola(token: string | null, signal?: AbortSignal): Promise<ResultadoCola> {
   try {
-    const respuesta = await fetch('/api/cocina/cola', {
-      headers: { Authorization: `Bearer ${token ?? ''}` },
-      signal,
-      cache: 'no-store',
-    })
-
-    if (respuesta.status === 401) {
-      return { ok: false, mensaje: 'Tu sesión expiró. Vuelve a iniciar sesión.' }
-    }
-
-    if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`)
-
-    const data = (await respuesta.json()) as ItemCocina[]
-    return { ok: true, cola: data }
+    const cola = await getColaCocina(token, signal)
+    return { ok: true, cola: cola.map(mapearItem) }
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') {
       return { ok: false, mensaje: null }
+    }
+
+    if (err instanceof ApiError && err.status === 401) {
+      return { ok: false, mensaje: 'Tu sesión expiró. Vuelve a iniciar sesión.' }
     }
 
     return {
@@ -278,12 +286,7 @@ export default function KitchenPage() {
     setError(null)
 
     try {
-      const respuesta = await fetch(`/api/cocina/items/${item.item_id}/lista`, {
-        method: 'PATCH',
-        headers: { Authorization: `Bearer ${token ?? ''}` },
-      })
-
-      if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`)
+      await marcarItemListo(item.item_id, token)
 
       setAviso(`Pedido #${item.pedido_id} · ${item.pizza} marcada como lista.`)
 
@@ -293,8 +296,12 @@ export default function KitchenPage() {
       } else if (resultado.mensaje) {
         setError(resultado.mensaje)
       }
-    } catch {
-      setError('No pudimos marcar la pizza como lista. Intenta de nuevo.')
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        setError('Tu sesión expiró. Vuelve a iniciar sesión.')
+      } else {
+        setError('No pudimos marcar la pizza como lista. Intenta de nuevo.')
+      }
     } finally {
       setProcesando(null)
     }

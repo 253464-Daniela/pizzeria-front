@@ -1,6 +1,7 @@
 import { useEffect, useState, type ComponentType, type FormEvent, type ReactNode } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
-import { RUTA_POR_ROL, useAuth, type Rol, type Usuario } from '../context/AuthContext'
+import { ApiError, login as loginRequest } from '../api'
+import { RUTA_POR_ROL, useAuth, type Rol } from '../context/AuthContext'
 
 interface IconoProps {
   className?: string
@@ -258,30 +259,17 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const respuesta = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ usuario: usuarioLimpio, password }),
-      })
-
-      if (respuesta.status === 400 || respuesta.status === 401) {
-        setError('Usuario o contraseña incorrectos.')
-        return
-      }
-
-      if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`)
-
-      const data = (await respuesta.json()) as { token?: string; usuario?: Usuario }
-
-      if (!data.token || !data.usuario) {
-        throw new Error('Respuesta de autenticación inválida')
-      }
+      const data = await loginRequest(usuarioLimpio, password)
 
       login(data.token, data.usuario)
       setCargando(false)
       navigate(RUTA_POR_ROL[data.usuario.rol] ?? '/', { replace: true })
-    } catch {
-      setError('No pudimos conectar con el servidor. Intenta de nuevo.')
+    } catch (err) {
+      if (err instanceof ApiError && (err.status === 400 || err.status === 401)) {
+        setError('Usuario o contraseña incorrectos.')
+      } else {
+        setError('No pudimos conectar con el servidor. Intenta de nuevo.')
+      }
     } finally {
       setCargando(false)
     }

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { getMenu } from '../api'
 import { Header } from '../components/Header'
 import { ProductCard, type Producto } from '../components/ProductCard'
 import { useCart } from '../context/CartContext'
@@ -10,8 +11,6 @@ const FILTROS: { value: Filtro; label: string }[] = [
   { value: 'pizza', label: 'Pizzas' },
   { value: 'bebida', label: 'Bebidas' },
 ]
-
-const API_URL = '/api/productos'
 
 function SkeletonCard() {
   return (
@@ -43,13 +42,7 @@ export default function MenuPage() {
       setError(null)
 
       try {
-        const respuesta = await fetch(API_URL, { signal: controller.signal })
-
-        if (!respuesta.ok) {
-          throw new Error(`Error ${respuesta.status}`)
-        }
-
-        const data: Producto[] = await respuesta.json()
+        const data = await getMenu(undefined, controller.signal)
         setProductos(data)
       } catch (err) {
         if (err instanceof DOMException && err.name === 'AbortError') return
