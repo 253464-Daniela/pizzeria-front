@@ -212,13 +212,13 @@ export default function LoginPage() {
     return <Navigate to={RUTA_POR_ROL[usuario.rol]} replace />
   }
 
-  function aplicarPreset(preset: (typeof PRESETS)[number]) {
+ /*  function aplicarPreset(preset: (typeof PRESETS)[number]) {
     setUsuarioInput(preset.usuario)
     setPassword(preset.password)
     setError(null)
     setAviso(`Credenciales de ${preset.etiqueta.toLowerCase()} cargadas.`)
   }
-
+ */
   async function manejarEnvio(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
 
