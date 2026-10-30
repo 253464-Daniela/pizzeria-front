@@ -28,7 +28,7 @@ const ANCHO_PROGRESO = ['w-0', 'w-1/2', 'w-full'] as const
 const PASOS = [
   { estado: 'pendiente', titulo: 'Pendiente', detalle: 'En el horno', Icono: ClockIcon },
   { estado: 'listo', titulo: 'Listo', detalle: 'Empacado', Icono: BoxIcon },
-  { estado: 'entregado', titulo: 'Entregado', detalle: 'En tu puerta', Icono: HomeIcon },
+  { estado: 'entregado', titulo: 'Entregado', detalle: 'Entregado', Icono: HomeIcon },
 ] as const
 
 const ESTILO_ESTADO: Record<PedidoEstado['estado'], string> = {

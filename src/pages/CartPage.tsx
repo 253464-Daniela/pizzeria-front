@@ -189,7 +189,7 @@ export default function CartPage() {
                     1. Tu pedido
                   </h2>
                   <p className="mt-0.5 text-xs font-semibold text-stone-500">
-                    Los precios son una estimación; el backend calcula el total real.
+                    Los precios son una estimación; el precio final podria cambiar.
                   </p>
                 </div>
                 <span className="flex-shrink-0 rounded-full border border-stone-200 bg-stone-100 px-3 py-1 text-xs font-bold text-stone-700">

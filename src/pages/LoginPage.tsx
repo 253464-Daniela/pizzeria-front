@@ -396,7 +396,7 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 border-t border-stone-100 pt-5">
+         {/*  <div className="mt-6 border-t border-stone-100 pt-5">
             <span className="mb-2.5 block text-center text-[10px] font-black uppercase tracking-widest text-stone-400">
               Acceso rápido de demostración
             </span>
@@ -413,7 +413,7 @@ export default function LoginPage() {
                 </button>
               ))}
             </div>
-          </div>
+          </div> */}
         </div>
       </main>
 
