@@ -199,8 +199,60 @@ export function IconoIngrediente({ className = 'h-4 w-4' }: IconoProps) {
   )
 }
 
-export function Spinner({ className = 'h-4 w-4' }: IconoProps) {
+export function IconoAgregar({ className = 'h-4 w-4' }: IconoProps) {
   return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M12 5v14M5 12h14" />
+    </svg>
+  )
+}
+
+export function IconoEliminar({ className = 'h-4 w-4' }: IconoProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+      <path d="M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" />
+      <path d="M10 11v6M14 11v6" />
+    </svg>
+  )
+}
+
+export function IconoVolver({ className = 'h-4 w-4' }: IconoProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.8}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M19 12H5M11 18l-6-6 6-6" />
+    </svg>
+  )
+}
+
+export function Spinner({ className = 'h-4 w-4' }: IconoProps) {  return (
     <svg viewBox="0 0 24 24" fill="none" className={`animate-spin ${className}`} aria-hidden="true">
       <circle cx="12" cy="12" r="9" stroke="currentColor" strokeOpacity="0.25" strokeWidth="3" />
       <path

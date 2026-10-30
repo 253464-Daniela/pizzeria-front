@@ -751,6 +751,209 @@ export function handler(req: IncomingMessage, res: ServerResponse, next: () => v
     return
   }
 
+  if (pathname === '/api/admin/productos' && req.method === 'POST') {
+    if (!estaAutorizado(req)) {
+      sendJson(res, 401, {
+        error: { codigo: 'NO_AUTORIZADO', mensaje: 'Se requiere un token válido.' },
+      })
+      return
+    }
+
+    let body = ''
+
+    req.on('data', (chunk) => {
+      body += chunk
+    })
+
+    req.on('end', () => {
+      let payload: {
+        nombre?: unknown
+        descripcion?: unknown
+        tipo?: unknown
+        precio?: unknown
+        imagen_url?: unknown
+        ingredientes_base?: unknown
+      }
+
+      try {
+        payload = JSON.parse(body)
+      } catch {
+        sendJson(res, 400, {
+          error: { codigo: 'JSON_INVALIDO', mensaje: 'El cuerpo de la solicitud no es válido.' },
+        })
+        return
+      }
+
+      if (typeof payload.nombre !== 'string' || !payload.nombre.trim()) {
+        sendJson(res, 422, {
+          error: { codigo: 'NOMBRE_REQUERIDO', mensaje: 'El nombre del producto es obligatorio.' },
+        })
+        return
+      }
+
+      if (
+        typeof payload.precio !== 'number' ||
+        !Number.isFinite(payload.precio) ||
+        payload.precio <= 0
+      ) {
+        sendJson(res, 422, {
+          error: { codigo: 'PRECIO_INVALIDO', mensaje: 'El precio debe ser un número mayor a 0.' },
+        })
+        return
+      }
+
+      const tipo = payload.tipo === 'bebida' ? 'bebida' : 'pizza'
+      const idsBase = Array.isArray(payload.ingredientes_base)
+        ? payload.ingredientes_base.map(Number)
+        : []
+      const ingredientesDisponibles = new Map(
+        [...productos.flatMap((p) => p.ingredientes_base), ...ingredientesExtra].map(
+          (ingrediente) => [ingrediente.id, { id: ingrediente.id, nombre: ingrediente.nombre }],
+        ),
+      )
+      const id = Math.max(0, ...productos.map((producto) => producto.id)) + 1
+      const nuevo = {
+        id,
+        nombre: payload.nombre.trim(),
+        descripcion: typeof payload.descripcion === 'string' ? payload.descripcion : '',
+        tipo: tipo as 'pizza' | 'bebida',
+        precio: Number(payload.precio.toFixed(2)),
+        imagen_url: typeof payload.imagen_url === 'string' ? payload.imagen_url : null,
+        ingredientes_base: idsBase.flatMap((idBase) => {
+          const ingrediente = ingredientesDisponibles.get(idBase)
+          return ingrediente ? [ingrediente] : []
+        }),
+      }
+
+      productos.push(nuevo)
+
+      sendJson(res, 201, nuevo)
+    })
+
+    return
+  }
+
+  const eliminarProductoAdmin = pathname.match(/^\/api\/admin\/productos\/(\d+)$/)
+  if (eliminarProductoAdmin && req.method === 'DELETE') {
+    if (!estaAutorizado(req)) {
+      sendJson(res, 401, {
+        error: { codigo: 'NO_AUTORIZADO', mensaje: 'Se requiere un token válido.' },
+      })
+      return
+    }
+
+    const indice = productos.findIndex(
+      (producto) => producto.id === Number(eliminarProductoAdmin[1]),
+    )
+
+    if (indice === -1) {
+      sendJson(res, 404, {
+        error: {
+          codigo: 'PRODUCTO_NO_ENCONTRADO',
+          mensaje: 'El producto indicado no existe.',
+        },
+      })
+      return
+    }
+
+    const [eliminado] = productos.splice(indice, 1)
+
+    sendJson(res, 200, { id: eliminado.id, nombre: eliminado.nombre, activo: false })
+    return
+  }
+
+  if (pathname === '/api/admin/ingredientes' && req.method === 'POST') {
+    if (!estaAutorizado(req)) {
+      sendJson(res, 401, {
+        error: { codigo: 'NO_AUTORIZADO', mensaje: 'Se requiere un token válido.' },
+      })
+      return
+    }
+
+    let body = ''
+
+    req.on('data', (chunk) => {
+      body += chunk
+    })
+
+    req.on('end', () => {
+      let payload: { nombre?: unknown; precio_extra?: unknown }
+
+      try {
+        payload = JSON.parse(body)
+      } catch {
+        sendJson(res, 400, {
+          error: { codigo: 'JSON_INVALIDO', mensaje: 'El cuerpo de la solicitud no es válido.' },
+        })
+        return
+      }
+
+      if (typeof payload.nombre !== 'string' || !payload.nombre.trim()) {
+        sendJson(res, 422, {
+          error: {
+            codigo: 'NOMBRE_REQUERIDO',
+            mensaje: 'El nombre del ingrediente es obligatorio.',
+          },
+        })
+        return
+      }
+
+      const precioExtra = payload.precio_extra === undefined ? 0 : Number(payload.precio_extra)
+
+      if (!Number.isFinite(precioExtra) || precioExtra < 0) {
+        sendJson(res, 422, {
+          error: {
+            codigo: 'PRECIO_INVALIDO',
+            mensaje: 'El precio extra debe ser un número mayor o igual a 0.',
+          },
+        })
+        return
+      }
+
+      const id = Math.max(100, ...ingredientesExtra.map((ingrediente) => ingrediente.id)) + 1
+      const nuevo = {
+        id,
+        nombre: payload.nombre.trim(),
+        precio_extra: Number(precioExtra.toFixed(2)),
+      }
+
+      ingredientesExtra.push(nuevo)
+
+      sendJson(res, 201, nuevo)
+    })
+
+    return
+  }
+
+  const eliminarIngredienteAdmin = pathname.match(/^\/api\/admin\/ingredientes\/(\d+)$/)
+  if (eliminarIngredienteAdmin && req.method === 'DELETE') {
+    if (!estaAutorizado(req)) {
+      sendJson(res, 401, {
+        error: { codigo: 'NO_AUTORIZADO', mensaje: 'Se requiere un token válido.' },
+      })
+      return
+    }
+
+    const indice = ingredientesExtra.findIndex(
+      (ingrediente) => ingrediente.id === Number(eliminarIngredienteAdmin[1]),
+    )
+
+    if (indice === -1) {
+      sendJson(res, 404, {
+        error: {
+          codigo: 'INGREDIENTE_NO_ENCONTRADO',
+          mensaje: 'El ingrediente indicado no existe.',
+        },
+      })
+      return
+    }
+
+    const [eliminado] = ingredientesExtra.splice(indice, 1)
+
+    sendJson(res, 200, { id: eliminado.id, nombre: eliminado.nombre, activo: false })
+    return
+  }
+
   const precioProducto = pathname.match(/^\/api\/admin\/productos\/(\d+)\/precio$/)
   if (precioProducto && req.method === 'PUT') {
     if (!estaAutorizado(req)) {

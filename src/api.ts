@@ -123,6 +123,26 @@ export interface ItemListaOut {
   pedido_estado: EstadoPedido
 }
 
+export interface ProductoIn {
+  nombre: string
+  descripcion?: string | null
+  tipo?: TipoProducto
+  precio: number
+  imagen_url?: string | null
+  ingredientes_base?: number[]
+}
+
+export interface IngredienteIn {
+  nombre: string
+  precio_extra?: number
+}
+
+export interface EliminadoOut {
+  id: number
+  nombre: string
+  activo: boolean
+}
+
 export interface CambioPrecioOut {
   id: number
   nombre: string
@@ -201,7 +221,7 @@ export class ApiError extends Error {
 }
 
 interface RequestOptions {
-  method?: 'GET' | 'POST' | 'PUT' | 'PATCH'
+  method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   token?: string | null
   body?: unknown
   signal?: AbortSignal
@@ -339,8 +359,43 @@ export async function actualizarPrecioIngrediente(
   })
 }
 
-export async function getHistorial(
-  tipo: TipoReferencia | undefined,
+export async function crearProducto(
+  payload: ProductoIn,
+  token: string | null,
+): Promise<ProductoDetalle> {
+  return request<ProductoDetalle>('/admin/productos', {
+    method: 'POST',
+    token,
+    body: payload,
+  })
+}
+
+export async function eliminarProducto(
+  id: number,
+  token: string | null,
+): Promise<EliminadoOut> {
+  return request<EliminadoOut>(`/admin/productos/${id}`, { method: 'DELETE', token })
+}
+
+export async function crearIngrediente(
+  payload: IngredienteIn,
+  token: string | null,
+): Promise<IdNombreExtra> {
+  return request<IdNombreExtra>('/admin/ingredientes', {
+    method: 'POST',
+    token,
+    body: payload,
+  })
+}
+
+export async function eliminarIngrediente(
+  id: number,
+  token: string | null,
+): Promise<EliminadoOut> {
+  return request<EliminadoOut>(`/admin/ingredientes/${id}`, { method: 'DELETE', token })
+}
+
+export async function getHistorial(  tipo: TipoReferencia | undefined,
   token: string | null,
   signal?: AbortSignal,
 ): Promise<CambioHistorial[]> {

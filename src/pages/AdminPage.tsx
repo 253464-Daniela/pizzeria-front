@@ -3,12 +3,19 @@ import {
   actualizarPrecioIngrediente,
   actualizarPrecioProducto,
   ApiError,
+  crearIngrediente,
+  crearProducto,
+  eliminarIngrediente,
+  eliminarProducto,
   getEstadisticas,
   getHistorial,
   getIngredientes,
   getMenu,
   type CambioHistorial,
+  type IngredienteIn,
+  type ProductoIn,
 } from '../api'
+import CatalogManager from '../components/admin/CatalogManager'
 import HistorySection from '../components/admin/HistorySection'
 import OrdersSection from '../components/admin/OrdersSection'
 import PriceManager from '../components/admin/PriceManager'
@@ -180,8 +187,88 @@ export default function AdminPage() {
     }
   }
 
-  function exportarCSV() {
-    const filas: string[][] = [
+  async function crearNuevoProducto(payload: ProductoIn): Promise<string | null> {
+    setErrorAccion(null)
+
+    try {
+      const creado = await crearProducto(payload, token)
+      setProductos((previos) => [
+        ...previos,
+        {
+          id: creado.id,
+          nombre: creado.nombre,
+          precio: creado.precio,
+          tipo: creado.tipo,
+        },
+      ])
+      setAviso(`Producto ${creado.nombre} agregado al menú.`)
+      return null
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 401) return 'Tu sesión expiró. Vuelve a iniciar sesión.'
+        if (err.status === 422) return 'Revisa los datos: el nombre y el precio son obligatorios.'
+      }
+      return 'No pudimos crear el producto. Intenta de nuevo.'
+    }
+  }
+
+  async function eliminarProductoExistente(id: number): Promise<string | null> {
+    setErrorAccion(null)
+
+    try {
+      const eliminado = await eliminarProducto(id, token)
+      setProductos((previos) => previos.filter((producto) => producto.id !== id))
+      setAviso(`Producto ${eliminado.nombre} retirado del menú.`)
+      return null
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 401) return 'Tu sesión expiró. Vuelve a iniciar sesión.'
+        if (err.status === 404) return 'El producto ya no existe.'
+        if (err.status === 409) return 'No se puede eliminar: el producto tiene pedidos asociados.'
+      }
+      return 'No pudimos eliminar el producto. Intenta de nuevo.'
+    }
+  }
+
+  async function crearNuevoIngrediente(payload: IngredienteIn): Promise<string | null> {
+    setErrorAccion(null)
+
+    try {
+      const creado = await crearIngrediente(payload, token)
+      setIngredientes((previos) => [
+        ...previos,
+        { id: creado.id, nombre: creado.nombre, precio_extra: creado.precio_extra },
+      ])
+      setAviso(`Ingrediente ${creado.nombre} agregado al catálogo.`)
+      return null
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 401) return 'Tu sesión expiró. Vuelve a iniciar sesión.'
+        if (err.status === 422) return 'Revisa los datos: el nombre es obligatorio.'
+      }
+      return 'No pudimos crear el ingrediente. Intenta de nuevo.'
+    }
+  }
+
+  async function eliminarIngredienteExistente(id: number): Promise<string | null> {
+    setErrorAccion(null)
+
+    try {
+      const eliminado = await eliminarIngrediente(id, token)
+      setIngredientes((previos) => previos.filter((ingrediente) => ingrediente.id !== id))
+      setAviso(`Ingrediente ${eliminado.nombre} retirado del catálogo.`)
+      return null
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 401) return 'Tu sesión expiró. Vuelve a iniciar sesión.'
+        if (err.status === 404) return 'El ingrediente ya no existe.'
+        if (err.status === 409) return 'No se puede eliminar: el ingrediente está en uso.'
+      }
+      return 'No pudimos eliminar el ingrediente. Intenta de nuevo.'
+    }
+  }
+
+  function exportarCSV() {    const filas: string[][] = [
       ['Nombre', 'Tipo', 'Precio'],
       ...productos.map((producto) => [
         producto.nombre,
@@ -372,6 +459,14 @@ export default function AdminPage() {
               ingredientes={ingredientes}
               onActualizarProducto={actualizarProducto}
               onActualizarIngrediente={actualizarIngrediente}
+            />
+            <CatalogManager
+              productos={productos}
+              ingredientes={ingredientes}
+              onCrearProducto={crearNuevoProducto}
+              onEliminarProducto={eliminarProductoExistente}
+              onCrearIngrediente={crearNuevoIngrediente}
+              onEliminarIngrediente={eliminarIngredienteExistente}
             />
             <HistorySection historial={historial} />
             <p className="text-center text-[11px] font-semibold text-stone-400">
